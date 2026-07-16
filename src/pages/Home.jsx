@@ -4,7 +4,7 @@ export default function Home() {
   return (
     <div>
       {/* Hero Section */}
-      <section className="bg-gradient-to-r from-orange-500 to-orange-400 text-white py-20">
+      <section className="bg-linear-to-r from-cyan-900 to-cyan-800 text-white py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
             <h1 className="text-5xl md:text-6xl font-bold mb-6">
@@ -34,14 +34,14 @@ export default function Home() {
                 key={service}
                 className="bg-white p-8 rounded-lg shadow-card hover:shadow-xl transition"
               >
-                <div className="w-16 h-16 bg-orange-500 rounded-lg mb-4"></div>
+                <div className="w-16 h-16 bg-emerald-500 rounded-lg mb-4"></div>
                 <h3 className="text-2xl font-bold mb-2">{service}</h3>
                 <p className="text-gray-600 mb-4">
                   Find verified {service.toLowerCase()} professionals in your area.
                 </p>
                 <Link 
                   to="/services" 
-                  className="text-orange-500 font-semibold hover:text-orange-600"
+                  className="text-emerald-500 font-semibold hover:text-emerald-600"
                 >
                   Explore →
                 </Link>
@@ -52,7 +52,7 @@ export default function Home() {
       </section>
 
       {/* CTA Section */}
-      <section className="bg-blue-900 text-white py-16">
+      <section className="bg-cyan-900 text-white py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-4xl font-bold mb-6">Ready to Get Started?</h2>
           <p className="text-xl mb-8 opacity-90">
@@ -60,7 +60,7 @@ export default function Home() {
           </p>
           <Link 
             to="/register" 
-            className="btn-primary inline-block text-lg bg-orange-500 hover:bg-orange-600"
+            className="btn-primary inline-block text-lg"
           >
             Create Account
           </Link>
