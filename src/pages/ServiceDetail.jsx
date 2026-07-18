@@ -30,7 +30,7 @@ export default function ServiceDetail() {
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <div className="max-w-360 mx-auto px-4 sm:px-6 lg:px-8 py-12">
       <button 
         onClick={() => navigate(-1)}
         className="mb-6 text-orange-500 hover:text-orange-600 font-semibold"

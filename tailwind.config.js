@@ -5,6 +5,11 @@ export default {
     "./src/**/*.{js,ts,jsx,tsx}",
   ],
   theme: {
+    extend: {
+      maxWidth: {
+        '360': '90rem',
+      },
+    },
     fontFamily: {
       sans: ['Inter', 'system-ui', 'sans-serif'],
     },

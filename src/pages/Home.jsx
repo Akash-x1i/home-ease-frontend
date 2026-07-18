@@ -3,15 +3,7 @@ import {
   Search,
   Star,
   Shield,
-  Clock,
   Wrench,
-  PaintBucket,
-  Zap,
-  SprayCan as Cleaning,
-  Tv,
-  Snowflake,
-  Smartphone,
-  Truck,
   ChevronRight,
   CheckCircle2,
   Users,
@@ -21,14 +13,14 @@ import {
 } from 'lucide-react';
 
 const services = [
-  { name: 'Plumbing', icon: Wrench, color: 'bg-blue-100 text-blue-600' },
-  { name: 'Electrical', icon: Zap, color: 'bg-yellow-100 text-yellow-600' },
-  { name: 'Home Cleaning', icon: Cleaning, color: 'bg-green-100 text-green-600' },
-  { name: 'Painting', icon: PaintBucket, color: 'bg-purple-100 text-purple-600' },
-  { name: 'Appliance Repair', icon: Tv, color: 'bg-red-100 text-red-600' },
-  { name: 'AC Service', icon: Snowflake, color: 'bg-cyan-100 text-cyan-600' },
-  { name: 'Mobile Repair', icon: Smartphone, color: 'bg-orange-100 text-orange-600' },
-  { name: 'Packers & Movers', icon: Truck, color: 'bg-indigo-100 text-indigo-600' },
+  { name: 'Plumbing', img: 'https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=400&q=80' },
+  { name: 'Electrical', img: 'https://images.unsplash.com/photo-1621905252507-b35492cc74b4?w=400&q=80' },
+  { name: 'Home Cleaning', img: 'https://images.unsplash.com/photo-1585421514284-efb74c2b69ba?w=400&q=80' },
+  { name: 'Painting', img: 'https://images.unsplash.com/photo-1562259929-b4e1fd3aef09?w=400&q=80' },
+  { name: 'Appliance Repair', img: 'https://images.unsplash.com/photo-1624378439575-d8705ad7ae80?w=400&q=80' },
+  { name: 'AC Service', img: 'https://images.unsplash.com/photo-1585771724684-38269d6639fd?w=400&q=80' },
+  { name: 'Mobile Repair', img: 'https://images.unsplash.com/photo-1581092918056-0c4c3acd3789?w=400&q=80' },
+  { name: 'Packers & Movers', img: 'https://images.unsplash.com/photo-1600518464441-9154a4dea21b?w=400&q=80' },
 ];
 
 const steps = [
@@ -92,59 +84,139 @@ export default function Home() {
   return (
     <div>
       {/* Hero Section */}
-      <section className="relative bg-gradient-to-br from-emerald-900 via-emerald-800 to-teal-800 text-white overflow-hidden">
+      <section className="relative bg-linear-to-br from-emerald-900 via-emerald-800 to-teal-800 text-white overflow-hidden">
         <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4wNSI+PGNpcmNsZSBjeD0iMzAiIGN5PSIzMCIgcj0iMiIvPjwvZz48L2c+PC9zdmc+')] opacity-40" />
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 lg:py-32">
-          <div className="max-w-3xl mx-auto text-center">
-            <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-full px-4 py-1.5 text-sm font-medium mb-6">
-              <Star className="w-4 h-4 text-yellow-400 fill-yellow-400" />
-              Trusted by 50,000+ customers
-            </div>
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight leading-tight mb-6">
-              Home Services,
-              <br />
-              <span className="text-emerald-200">On Your Schedule</span>
-            </h1>
-            <p className="text-lg sm:text-xl text-emerald-100/80 mb-10 max-w-2xl mx-auto">
-              From plumbing to painting, find verified professionals who show up on time and
-              deliver quality work. Book in 60 seconds.
-            </p>
+        <div className="relative max-w-360 mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-40 lg:pb-40">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+            {/* Left: Text Content */}
+            <div>
+              <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-full px-4 py-1.5 text-sm font-medium mb-6">
+                <Star className="w-4 h-4 text-yellow-400 fill-yellow-400" />
+                Trusted by 50,000+ customers
+              </div>
+              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight leading-tight mb-6">
+                Home Services,
+                <br />
+                <span className="text-emerald-200">On Your Schedule</span>
+              </h1>
+              <p className="text-lg sm:text-xl text-emerald-100/80 mb-8 max-w-lg">
+                From plumbing to painting, find verified professionals who show up on time and
+                deliver quality work. Book in 60 seconds.
+              </p>
 
-            {/* Search Bar */}
-            <div className="max-w-xl mx-auto">
-              <div className="relative">
-                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                <input
-                  type="text"
-                  placeholder="What service do you need? (e.g., Plumbing)"
-                  className="w-full pl-12 pr-36 py-4 rounded-xl text-gray-900 text-base focus:outline-none focus:ring-2 focus:ring-emerald-400 shadow-lg"
-                />
-                <button className="absolute right-1.5 top-1/2 -translate-y-1/2 bg-emerald-600 text-white px-6 py-2.5 rounded-lg hover:bg-emerald-700 font-medium text-sm transition-colors">
-                  Search
-                </button>
+              {/* Search Bar */}
+              <div className="max-w-lg">
+                <div className="relative">
+                  <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                  <input
+                    type="text"
+                    placeholder="What service do you need? (e.g., Plumbing)"
+                    className="w-full pl-12 pr-36 py-4 rounded-xl text-gray-900 text-base bg-white focus:outline-none focus:ring-2 focus:ring-emerald-400 shadow-lg"
+                  />
+                  <button className="absolute right-1.5 top-1/2 -translate-y-1/2 bg-emerald-600 text-white px-6 py-2.5 rounded-lg hover:bg-emerald-700 font-medium text-sm transition-colors">
+                    Search
+                  </button>
+                </div>
+              </div>
+
+              {/* Trust Badges */}
+              <div className="flex flex-wrap gap-6 mt-8 text-sm text-emerald-200">
+                <span className="flex items-center gap-1.5">
+                  <CheckCircle2 className="w-4 h-4" /> Verified Pros
+                </span>
+                <span className="flex items-center gap-1.5">
+                  <CheckCircle2 className="w-4 h-4" /> Transparent Pricing
+                </span>
+                <span className="flex items-center gap-1.5">
+                  <CheckCircle2 className="w-4 h-4" /> 24/7 Support
+                </span>
               </div>
             </div>
 
-            {/* Trust Badges */}
-            <div className="flex flex-wrap justify-center gap-6 mt-10 text-sm text-emerald-200">
-              <span className="flex items-center gap-1.5">
-                <CheckCircle2 className="w-4 h-4" /> Verified Pros
-              </span>
-              <span className="flex items-center gap-1.5">
-                <CheckCircle2 className="w-4 h-4" /> Transparent Pricing
-              </span>
-              <span className="flex items-center gap-1.5">
-                <CheckCircle2 className="w-4 h-4" /> 24/7 Support
-              </span>
+            {/* Right: Image Showcase */}
+            <div className="hidden lg:block relative">
+              <div className="relative grid grid-cols-2 gap-3">
+                <div className="space-y-3 translate-y-8">
+                  <div className="relative group overflow-hidden rounded-2xl shadow-xl aspect-[4/3]">
+                    <img
+                      src="https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=400&q=80"
+                      alt="Plumbing"
+                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                      loading="lazy"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
+                    <span className="absolute bottom-3 left-3 text-white text-sm font-medium bg-black/30 backdrop-blur-sm px-2.5 py-1 rounded-lg">
+                      Plumbing
+                    </span>
+                  </div>
+                  <div className="relative group overflow-hidden rounded-2xl shadow-xl aspect-[4/3]">
+                    <img
+                      src="https://images.unsplash.com/photo-1523413651479-597eb2da0ad6?w=400&q=80"
+                      alt="Electrical"
+                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                      loading="lazy"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
+                    <span className="absolute bottom-3 left-3 text-white text-sm font-medium bg-black/30 backdrop-blur-sm px-2.5 py-1 rounded-lg">
+                      Electrical
+                    </span>
+                  </div>
+                </div>
+                <div className="space-y-3 -translate-y-8">
+                  <div className="relative group overflow-hidden rounded-2xl shadow-xl aspect-[4/3]">
+                    <img
+                      src="https://images.unsplash.com/photo-1585421514284-efb74c2b69ba?w=400&q=80"
+                      alt="Cleaning"
+                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                      loading="lazy"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
+                    <span className="absolute bottom-3 left-3 text-white text-sm font-medium bg-black/30 backdrop-blur-sm px-2.5 py-1 rounded-lg">
+                      Cleaning
+                    </span>
+                  </div>
+                  <div className="relative group overflow-hidden rounded-2xl shadow-xl aspect-[4/3]">
+                    <img
+                      src="https://images.unsplash.com/photo-1562259929-b4e1fd3aef09?w=400&q=80"
+                      alt="Painting"
+                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                      loading="lazy"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
+                    <span className="absolute bottom-3 left-3 text-white text-sm font-medium bg-black/30 backdrop-blur-sm px-2.5 py-1 rounded-lg">
+                      Painting
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Floating Rating Badge */}
+              <div className="absolute -bottom-6 right-6 bg-white rounded-xl shadow-xl p-4 flex items-center gap-3 animate-bounce-slow">
+                <div className="flex items-center gap-0.5">
+                  {[...Array(5)].map((_, i) => (
+                    <Star key={i} className="w-4 h-4 text-yellow-400 fill-yellow-400" />
+                  ))}
+                </div>
+                <div className="text-gray-900">
+                  <span className="font-bold text-lg">4.8</span>
+                  <span className="text-gray-500 text-sm ml-1">(2.1K)</span>
+                </div>
+              </div>
+
+              {/* Floating Stats Card */}
+              <div className="absolute -top-4 -right-6 bg-white rounded-xl shadow-xl px-4 py-3 text-center">
+                <div className="text-2xl font-bold text-emerald-600">50+</div>
+                <div className="text-gray-500 text-xs">Services</div>
+              </div>
             </div>
           </div>
         </div>
-        <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-gray-50 to-transparent" />
+        {/* <div className="absolute bottom-0 left-0 right-0 h-24 mt-10 bg-linear-to-t from-gray-50 to-transparent" /> */}
       </section>
 
       {/* Stats Bar */}
       <section className="bg-white border-b border-gray-100">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="max-w-360 mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
             {[
               { value: '50K+', label: 'Happy Customers', icon: Users },
@@ -164,7 +236,7 @@ export default function Home() {
 
       {/* How It Works */}
       <section className="py-16 lg:py-24 bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-360 mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-2xl mx-auto mb-14">
             <span className="text-emerald-600 font-semibold text-sm tracking-wider uppercase">
               Simple Process
@@ -199,7 +271,7 @@ export default function Home() {
 
       {/* Popular Services */}
       <section className="py-16 lg:py-24 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-360 mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col lg:flex-row lg:items-end justify-between mb-14">
             <div className="max-w-xl">
               <span className="text-emerald-600 font-semibold text-sm tracking-wider uppercase">
@@ -221,23 +293,41 @@ export default function Home() {
           </div>
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 lg:gap-6">
-            {services.map((service) => (
-              <Link
-                key={service.name}
-                to="/services"
-                className="group bg-gray-50 hover:bg-white rounded-2xl p-6 lg:p-8 border border-gray-100 hover:border-emerald-200 hover:shadow-lg hover:shadow-emerald-100/40 transition-all"
-              >
-                <div
-                  className={`w-14 h-14 ${service.color} rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform`}
+            {services.map((service, i) => {
+              const gradients = [
+                'from-blue-800 to-blue-600',
+                'from-yellow-700 to-yellow-500',
+                'from-green-800 to-green-600',
+                'from-purple-800 to-purple-600',
+                'from-red-800 to-red-600',
+                'from-cyan-800 to-cyan-600',
+                'from-orange-800 to-orange-600',
+                'from-indigo-800 to-indigo-600',
+              ];
+              return (
+                <Link
+                  key={service.name}
+                  to="/services"
+                  className={`group relative aspect-square overflow-hidden rounded-2xl bg-gradient-to-br ${gradients[i]}`}
                 >
-                  <service.icon className="w-7 h-7" />
-                </div>
-                <h3 className="font-semibold text-gray-900 group-hover:text-emerald-600 transition-colors">
-                  {service.name}
-                </h3>
-                <p className="text-sm text-gray-500 mt-1">Book Now &rarr;</p>
-              </Link>
-            ))}
+                  <img
+                    src={service.img}
+                    alt={service.name}
+                    className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                    loading="lazy"
+                    onError={(e) => { e.target.style.display = 'none'; }}
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent" />
+
+                  <div className="absolute bottom-3 left-3 right-3">
+                    <h3 className="text-white font-bold text-lg leading-tight">{service.name}</h3>
+                    <p className="text-white/60 text-sm mt-0.5 group-hover:text-white/90 transition-colors">
+                      Book Now <ChevronRight className="w-3.5 h-3.5 inline group-hover:translate-x-1 transition-transform" />
+                    </p>
+                  </div>
+                </Link>
+              );
+            })}
           </div>
 
           <div className="mt-8 text-center lg:hidden">
@@ -253,7 +343,7 @@ export default function Home() {
 
       {/* Why Choose Us */}
       <section className="py-16 lg:py-24 bg-gradient-to-br from-emerald-50 to-teal-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-360 mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
             <div>
               <span className="text-emerald-600 font-semibold text-sm tracking-wider uppercase">
@@ -335,7 +425,7 @@ export default function Home() {
 
       {/* Testimonials */}
       <section className="py-16 lg:py-24 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-360 mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-2xl mx-auto mb-14">
             <span className="text-emerald-600 font-semibold text-sm tracking-wider uppercase">
               Testimonials
