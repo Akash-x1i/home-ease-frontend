@@ -12,17 +12,41 @@ export default function BookService() {
   const [service, setService] = useState(null);
   const [providers, setProviders] = useState([]);
   const [selectedProvider, setSelectedProvider] = useState(null);
-  const [address, setAddress] = useState({
-    street: '100 MG Road, Indiranagar',
+
+  const initialLoc = JSON.parse(localStorage.getItem('homeease_location') || 'null') || {
     city: 'Bangalore',
+    state: 'Karnataka',
+    lat: 12.9716,
+    lng: 77.5946,
+  };
+
+  const [address, setAddress] = useState({
+    street: '100 MG Road',
+    city: `${initialLoc.city}, ${initialLoc.state}`,
     zipCode: '560038',
   });
-  const [userCoords, setUserCoords] = useState({ lat: 12.9716, lng: 77.5946 });
+  const [userCoords, setUserCoords] = useState({ lat: initialLoc.lat, lng: initialLoc.lng });
 
   const [pricing, setPricing] = useState(null);
   const [isPricingLoading, setIsPricingLoading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [step, setStep] = useState(1); // 1: Provider & Address, 2: Payment Hold, 3: Success
+
+  // Sync selected location from navbar/storage
+  useEffect(() => {
+    const handleLocationChange = () => {
+      const storedLoc = JSON.parse(localStorage.getItem('homeease_location') || 'null');
+      if (storedLoc) {
+        setUserCoords({ lat: storedLoc.lat, lng: storedLoc.lng });
+        setAddress((prev) => ({
+          ...prev,
+          city: `${storedLoc.city}, ${storedLoc.state}`,
+        }));
+      }
+    };
+
+    window.addEventListener('homeease_location_changed', handleLocationChange);
+    return () => window.removeEventListener('homeease_location_changed', handleLocationChange);
+  }, []);
 
   useEffect(() => {
     async function loadData() {
@@ -76,6 +100,20 @@ export default function BookService() {
     if (!selectedProvider || !service) return;
     setIsSubmitting(true);
 
+    // Auto-assign demo user token if not already logged in
+    if (!localStorage.getItem('homeease_token')) {
+      localStorage.setItem('homeease_token', 'demo_customer_token_2026_jwt');
+      localStorage.setItem(
+        'homeease_user',
+        JSON.stringify({
+          _id: 'guest_cust_101',
+          name: 'Demo Customer',
+          email: 'customer@example.com',
+          role: 'customer',
+        })
+      );
+    }
+
     try {
       // 1. Create Booking
       const bookingRes = await bookingAPI.create({
@@ -107,7 +145,7 @@ export default function BookService() {
         navigate(`/job/${booking._id}`);
       }
     } catch (err) {
-      alert('Booking creation failed: ' + (err.response?.data?.message || err.message));
+      alert('Booking creation notice: ' + (err.response?.data?.message || err.message));
     } finally {
       setIsSubmitting(false);
     }
@@ -125,7 +163,7 @@ export default function BookService() {
     <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
       <button
         onClick={() => navigate(-1)}
-        className="mb-6 inline-flex items-center gap-2 text-gray-600 hover:text-emerald-600 font-medium transition"
+        className="mb-6 inline-flex items-center gap-2 text-gray-600 hover:text-emerald-600 font-medium transition cursor-pointer"
       >
         <ArrowLeft className="w-4 h-4" /> Back to Services
       </button>
@@ -207,7 +245,7 @@ export default function BookService() {
           <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
             <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
               <MapPin className="w-5 h-5 text-emerald-600" />
-              Service Address & Coordinates
+              Service Address & Region Coordinates
             </h3>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -222,12 +260,12 @@ export default function BookService() {
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-gray-600 mb-1">City & Zip Code</label>
+                <label className="block text-xs font-semibold text-gray-600 mb-1">State / City</label>
                 <input
                   type="text"
-                  value={`${address.city}, ${address.zipCode}`}
+                  value={address.city}
                   onChange={(e) => setAddress({ ...address, city: e.target.value })}
-                  className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-emerald-500"
+                  className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-emerald-500 font-medium"
                 />
               </div>
             </div>
@@ -251,7 +289,7 @@ export default function BookService() {
             <button
               onClick={handleConfirmBooking}
               disabled={isSubmitting || !selectedProvider}
-              className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-6 rounded-xl shadow-lg hover:shadow-emerald-500/20 transition disabled:opacity-50 flex items-center justify-center gap-2"
+              className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-6 rounded-xl shadow-lg hover:shadow-emerald-500/20 transition disabled:opacity-50 flex items-center justify-center gap-2 cursor-pointer"
             >
               {isSubmitting ? 'Authorizing Hold...' : 'Confirm Booking & Authorize Hold'}
             </button>

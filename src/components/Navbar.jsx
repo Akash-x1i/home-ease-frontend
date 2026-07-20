@@ -1,16 +1,21 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Menu, X, Search, MapPin, ChevronDown, UserCircle, LogIn, UserPlus, Info, ShoppingCart, User, LogOut } from 'lucide-react';
 
-const locations = [
-  'Mumbai',
-  'Delhi',
-  'Bangalore',
-  'Hyderabad',
-  'Chennai',
-  'Pune',
-  'Kolkata',
-  'Ahmedabad',
+const indianLocations = [
+  { city: 'Bangalore', state: 'Karnataka', lat: 12.9716, lng: 77.5946 },
+  { city: 'Mumbai', state: 'Maharashtra', lat: 19.0760, lng: 72.8777 },
+  { city: 'Delhi / NCR', state: 'Delhi', lat: 28.6139, lng: 77.2090 },
+  { city: 'Hyderabad', state: 'Telangana', lat: 17.3850, lng: 78.4867 },
+  { city: 'Chennai', state: 'Tamil Nadu', lat: 13.0827, lng: 80.2707 },
+  { city: 'Pune', state: 'Maharashtra', lat: 18.5204, lng: 73.8567 },
+  { city: 'Kolkata', state: 'West Bengal', lat: 22.5726, lng: 88.3639 },
+  { city: 'Ahmedabad', state: 'Gujarat', lat: 23.0225, lng: 72.5714 },
+  { city: 'Jaipur', state: 'Rajasthan', lat: 26.9124, lng: 75.7873 },
+  { city: 'Chandigarh', state: 'Punjab / Haryana', lat: 30.7333, lng: 76.7794 },
+  { city: 'Kochi', state: 'Kerala', lat: 9.9312, lng: 76.2673 },
+  { city: 'Lucknow', state: 'Uttar Pradesh', lat: 26.8467, lng: 80.9462 },
+  { city: 'Indore', state: 'Madhya Pradesh', lat: 22.7196, lng: 75.8577 },
 ];
 
 const navLinks = [
@@ -22,16 +27,25 @@ const navLinks = [
 export default function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [locationOpen, setLocationOpen] = useState(false);
-  const [selectedLocation, setSelectedLocation] = useState('Bangalore');
+  const [selectedLocation, setSelectedLocation] = useState(
+    JSON.parse(localStorage.getItem('homeease_location') || 'null') || indianLocations[0]
+  );
   const [accountOpen, setAccountOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  
+
   const storedToken = localStorage.getItem('homeease_token');
   const storedUserRaw = localStorage.getItem('homeease_user');
   const user = storedUserRaw ? JSON.parse(storedUserRaw) : null;
   const isLoggedIn = Boolean(storedToken && user);
 
   const navigate = useNavigate();
+
+  const handleSelectLocation = (loc) => {
+    setSelectedLocation(loc);
+    localStorage.setItem('homeease_location', JSON.stringify(loc));
+    setLocationOpen(false);
+    window.dispatchEvent(new Event('homeease_location_changed'));
+  };
 
   const handleNavSearch = (e) => {
     e.preventDefault();
@@ -71,11 +85,11 @@ export default function Navbar() {
               <div className="relative">
                 <button
                   onClick={() => setLocationOpen(!locationOpen)}
-                  className="flex items-center gap-1.5 px-3.5 h-full border-r border-gray-200 text-sm text-gray-600 hover:text-emerald-600 transition-colors"
+                  className="flex items-center gap-1.5 px-3.5 h-full border-r border-gray-200 text-sm text-gray-700 hover:text-emerald-600 transition-colors bg-gray-100/60"
                 >
-                  <MapPin className="w-4 h-4" />
-                  <span className="font-medium whitespace-nowrap">
-                    {selectedLocation}
+                  <MapPin className="w-4 h-4 text-emerald-600" />
+                  <span className="font-semibold whitespace-nowrap">
+                    {selectedLocation.city}
                   </span>
                   <ChevronDown
                     className={`w-3.5 h-3.5 transition-transform ${locationOpen ? 'rotate-180' : ''}`}
@@ -87,21 +101,22 @@ export default function Navbar() {
                       className="fixed inset-0 z-10"
                       onClick={() => setLocationOpen(false)}
                     />
-                    <div className="absolute top-full left-0 mt-1 bg-white border border-gray-200 rounded-xl shadow-lg py-2 z-20 w-44">
-                      {locations.map((loc) => (
+                    <div className="absolute top-full left-0 mt-1 bg-white border border-gray-200 rounded-2xl shadow-2xl py-2 z-20 w-64 max-h-80 overflow-y-auto">
+                      <div className="px-3 py-1.5 text-[11px] font-bold uppercase text-gray-400 border-b border-gray-100">
+                        Select Region / State in India
+                      </div>
+                      {indianLocations.map((loc) => (
                         <button
-                          key={loc}
-                          onClick={() => {
-                            setSelectedLocation(loc);
-                            setLocationOpen(false);
-                          }}
-                          className={`w-full text-left px-4 py-2 text-sm hover:bg-gray-50 transition-colors ${
-                            loc === selectedLocation
-                              ? 'text-emerald-600 font-medium'
+                          key={loc.city}
+                          onClick={() => handleSelectLocation(loc)}
+                          className={`w-full text-left px-4 py-2 text-sm hover:bg-emerald-50 transition-colors flex justify-between items-center ${
+                            loc.city === selectedLocation.city
+                              ? 'text-emerald-600 font-bold bg-emerald-50/50'
                               : 'text-gray-700'
                           }`}
                         >
-                          {loc}
+                          <span>{loc.city}</span>
+                          <span className="text-[10px] text-gray-400 font-medium">{loc.state}</span>
                         </button>
                       ))}
                     </div>
@@ -115,7 +130,7 @@ export default function Navbar() {
                   type="text"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Search for a service..."
+                  placeholder="Search for a service in your city..."
                   className="flex-1 px-3.5 py-2.5 bg-transparent text-sm text-gray-700 placeholder-gray-400 focus:outline-none"
                 />
                 <button type="submit" className="px-4 bg-emerald-600 text-white hover:bg-emerald-700 transition-colors flex items-center justify-center cursor-pointer">
@@ -210,15 +225,6 @@ export default function Navbar() {
                         <UserPlus className="w-4 h-4" />
                         Sign Up
                       </Link>
-                      <hr className="border-gray-100 my-1" />
-                      <Link
-                        to="/how-it-works"
-                        onClick={() => setAccountOpen(false)}
-                        className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 hover:text-emerald-600 transition-colors"
-                      >
-                        <Info className="w-4 h-4" />
-                        How It Works
-                      </Link>
                     </>
                   )}
                 </div>
@@ -226,7 +232,7 @@ export default function Navbar() {
             )}
           </div>
 
-          {/* Mobile: Search + Menu */}
+          {/* Mobile Menu */}
           <div className="flex lg:hidden items-center gap-2">
             <Link
               to="/services"
@@ -252,51 +258,36 @@ export default function Navbar() {
       {mobileMenuOpen && (
         <div className="lg:hidden border-t border-gray-100 bg-white">
           <div className="max-w-360 mx-auto px-4 sm:px-6 lg:px-8 py-4 space-y-4">
-            {/* Mobile Location */}
             <div className="relative">
               <button
                 onClick={() => setLocationOpen(!locationOpen)}
                 className="flex items-center gap-2 w-full text-left text-gray-700 font-medium py-2"
               >
                 <MapPin className="w-4 h-4 text-emerald-600" />
-                {selectedLocation}
+                {selectedLocation.city} ({selectedLocation.state})
                 <ChevronDown
                   className={`w-4 h-4 ml-auto transition-transform ${locationOpen ? 'rotate-180' : ''}`}
                 />
               </button>
               {locationOpen && (
-                <div className="pl-6 space-y-1 pb-2">
-                  {locations.map((loc) => (
+                <div className="pl-6 space-y-1 pb-2 max-h-48 overflow-y-auto">
+                  {indianLocations.map((loc) => (
                     <button
-                      key={loc}
-                      onClick={() => {
-                        setSelectedLocation(loc);
-                        setLocationOpen(false);
-                      }}
+                      key={loc.city}
+                      onClick={() => handleSelectLocation(loc)}
                       className={`block text-sm py-1.5 transition-colors ${
-                        loc === selectedLocation
+                        loc.city === selectedLocation.city
                           ? 'text-emerald-600 font-medium'
                           : 'text-gray-600 hover:text-emerald-600'
                       }`}
                     >
-                      {loc}
+                      {loc.city} - {loc.state}
                     </button>
                   ))}
                 </div>
               )}
             </div>
 
-            {/* Mobile Search */}
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-              <input
-                type="text"
-                placeholder="Search for a service..."
-                className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
-              />
-            </div>
-
-            {/* Nav Links */}
             {navLinks.map((link) => (
               <Link
                 key={link.path}
@@ -307,73 +298,6 @@ export default function Navbar() {
                 {link.label}
               </Link>
             ))}
-            <hr className="border-gray-100" />
-            {isLoggedIn ? (
-              <>
-                <div className="py-2 text-sm text-gray-500 border-b border-gray-100 mb-1">
-                  <p className="font-medium text-gray-900">John Doe</p>
-                  <p>john@example.com</p>
-                </div>
-                <Link
-                  to="/dashboard"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="flex items-center gap-3 text-gray-700 hover:text-emerald-600 font-medium py-2 transition-colors"
-                >
-                  <User className="w-5 h-5" />
-                  My Profile
-                </Link>
-                <Link
-                  to="/cart"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="flex items-center gap-3 text-gray-700 hover:text-emerald-600 font-medium py-2 transition-colors"
-                >
-                  <ShoppingCart className="w-5 h-5" />
-                  My Cart
-                </Link>
-                <Link
-                  to="/how-it-works"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="flex items-center gap-3 text-gray-700 hover:text-emerald-600 font-medium py-2 transition-colors"
-                >
-                  <Info className="w-5 h-5" />
-                  How It Works
-                </Link>
-                <button
-                  onClick={handleLogout}
-                  className="flex items-center gap-3 text-red-600 hover:text-red-700 font-medium py-2 transition-colors"
-                >
-                  <LogOut className="w-5 h-5" />
-                  Logout
-                </button>
-              </>
-            ) : (
-              <>
-                <Link
-                  to="/login"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="flex items-center gap-3 text-gray-700 hover:text-emerald-600 font-medium py-2 transition-colors"
-                >
-                  <LogIn className="w-5 h-5" />
-                  Sign In
-                </Link>
-                <Link
-                  to="/register"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="flex items-center gap-3 text-gray-700 hover:text-emerald-600 font-medium py-2 transition-colors"
-                >
-                  <UserPlus className="w-5 h-5" />
-                  Sign Up
-                </Link>
-                <Link
-                  to="/how-it-works"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="flex items-center gap-3 text-gray-700 hover:text-emerald-600 font-medium py-2 transition-colors"
-                >
-                  <Info className="w-5 h-5" />
-                  How It Works
-                </Link>
-              </>
-            )}
           </div>
         </div>
       )}
