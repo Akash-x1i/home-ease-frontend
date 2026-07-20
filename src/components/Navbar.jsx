@@ -160,6 +160,22 @@ export default function Navbar() {
                         My Dashboard
                       </Link>
                       <Link
+                        to="/profile"
+                        onClick={() => setAccountOpen(false)}
+                        className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 hover:text-emerald-600 transition-colors"
+                      >
+                        <User className="w-4 h-4 text-emerald-600" />
+                        Edit Profile
+                      </Link>
+                      <Link
+                        to="/admin"
+                        onClick={() => setAccountOpen(false)}
+                        className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 hover:text-emerald-600 transition-colors font-semibold"
+                      >
+                        <Info className="w-4 h-4 text-purple-600" />
+                        Admin Console
+                      </Link>
+                      <Link
                         to="/services"
                         onClick={() => setAccountOpen(false)}
                         className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 hover:text-emerald-600 transition-colors"

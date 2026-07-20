@@ -29,6 +29,11 @@ export const authAPI = {
   getProviders: (category) => api.get(`/auth/providers${category ? `?category=${category}` : ''}`),
 };
 
+// User Profile API
+export const userAPI = {
+  updateProfile: (data) => api.put('/users/profile', data),
+};
+
 // Service Catalog APIs
 export const serviceAPI = {
   getAll: (category, search) => {
@@ -57,6 +62,25 @@ export const bookingAPI = {
 export const trackingAPI = {
   getStatus: (bookingId) => api.get(`/tracking/${bookingId}`),
   updateLocation: (data) => api.post('/tracking/update-location', data),
+};
+
+// In-App Chat API
+export const chatAPI = {
+  getBookingMessages: (bookingId) => api.get(`/chat/${bookingId}`),
+  sendMessage: (data) => api.post('/chat', data),
+};
+
+// Disputes API
+export const disputeAPI = {
+  create: (data) => api.post('/disputes', data),
+  getUserDisputes: () => api.get('/disputes/user'),
+  resolve: (disputeId, data) => api.put(`/disputes/${disputeId}/resolve`, data),
+};
+
+// Admin Console API
+export const adminAPI = {
+  getAnalytics: () => api.get('/admin/analytics'),
+  getUsers: () => api.get('/admin/users'),
 };
 
 // Provider Badges API

@@ -3,7 +3,9 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { bookingAPI, paymentAPI, ratingAPI } from '../services/api';
 import LiveTracking from '../components/LiveTracking';
 import ProviderBadge from '../components/ProviderBadge';
-import { CheckCircle, Navigation, ShieldCheck, DollarSign, Star, Clock, AlertCircle } from 'lucide-react';
+import InAppChat from '../components/InAppChat';
+import DisputeModal from '../components/DisputeModal';
+import { CheckCircle, Navigation, ShieldCheck, DollarSign, Star, Clock, AlertTriangle, MessageSquare } from 'lucide-react';
 
 export default function ActiveJob() {
   const { bookingId } = useParams();
@@ -15,6 +17,10 @@ export default function ActiveJob() {
   const [ratingVal, setRatingVal] = useState(5);
   const [reviewText, setReviewText] = useState('');
   const [hasRated, setHasRated] = useState(false);
+  const [isDisputeOpen, setIsDisputeOpen] = useState(false);
+
+  const storedUserRaw = localStorage.getItem('homeease_user');
+  const currentUser = storedUserRaw ? JSON.parse(storedUserRaw) : { name: 'You', role: 'customer' };
 
   const fetchBooking = async () => {
     try {
@@ -41,7 +47,6 @@ export default function ActiveJob() {
       const res = await bookingAPI.updateStatus(bookingId, newStatus);
       if (res.data.success) {
         setBooking(res.data.booking);
-        // If completed, trigger payout
         if (newStatus === 'completed') {
           try {
             await paymentAPI.processPayout({ bookingId });
@@ -78,7 +83,7 @@ export default function ActiveJob() {
   if (loading) {
     return (
       <div className="max-w-4xl mx-auto px-4 py-20 text-center text-gray-500">
-        Loading active job status...
+        Loading active job tracking & in-app chat...
       </div>
     );
   }
@@ -97,7 +102,7 @@ export default function ActiveJob() {
   const isAccepted = status === 'accepted';
 
   return (
-    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
       {/* Header Banner */}
       <div className="bg-gradient-to-r from-gray-900 via-slate-900 to-emerald-950 text-white p-8 rounded-3xl shadow-xl flex flex-wrap justify-between items-center gap-6">
         <div>
@@ -111,20 +116,29 @@ export default function ActiveJob() {
           </p>
         </div>
 
-        <div className="text-right">
-          <span className="text-xs text-gray-400 block uppercase font-semibold">Locked Price</span>
-          <span className="text-3xl font-extrabold text-emerald-400">${priceBreakdown?.finalPrice}</span>
-          <span className="block text-xs text-emerald-300/80 mt-1 capitalize">
-            Payment Status: {booking.paymentStatus.replace('_', ' ')}
-          </span>
+        <div className="flex items-center gap-6">
+          <div className="text-right">
+            <span className="text-xs text-gray-400 block uppercase font-semibold">Locked Price</span>
+            <span className="text-3xl font-extrabold text-emerald-400">${priceBreakdown?.finalPrice}</span>
+            <span className="block text-xs text-emerald-300/80 mt-1 capitalize">
+              Payment: {booking.paymentStatus.replace('_', ' ')}
+            </span>
+          </div>
+
+          <button
+            onClick={() => setIsDisputeOpen(true)}
+            className="bg-red-500/20 hover:bg-red-500/30 text-red-300 text-xs font-bold px-4 py-2.5 rounded-xl border border-red-500/30 transition flex items-center gap-1.5 cursor-pointer"
+          >
+            <AlertTriangle className="w-4 h-4 text-red-400" /> File Dispute
+          </button>
         </div>
       </div>
 
-      {/* Control Action Buttons (Demonstrating Provider & Customer Workflow) */}
+      {/* Control Action Buttons */}
       <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h3 className="font-bold text-gray-900">Job Control & Workflow</h3>
-          <p className="text-xs text-gray-500">Simulate provider job lifecycle transitions</p>
+          <h3 className="font-bold text-gray-900">Job Control Workflow</h3>
+          <p className="text-xs text-gray-500">Provider job state transition triggers</p>
         </div>
 
         <div className="flex flex-wrap items-center gap-3">
@@ -132,7 +146,7 @@ export default function ActiveJob() {
             <button
               onClick={() => handleStatusChange('accepted')}
               disabled={updating}
-              className="bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold py-2.5 px-5 rounded-xl transition"
+              className="bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold py-2.5 px-5 rounded-xl transition cursor-pointer"
             >
               1. Provider Accept Job
             </button>
@@ -142,10 +156,10 @@ export default function ActiveJob() {
             <button
               onClick={() => handleStatusChange('in-progress')}
               disabled={updating}
-              className="bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-bold py-2.5 px-5 rounded-xl transition flex items-center gap-2"
+              className="bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-bold py-2.5 px-5 rounded-xl transition flex items-center gap-2 cursor-pointer"
             >
               <Navigation className="w-4 h-4" />
-              2. Start Live Tracking (In-Progress)
+              2. Start Live Tracking & In-App Chat
             </button>
           )}
 
@@ -153,7 +167,7 @@ export default function ActiveJob() {
             <button
               onClick={() => handleStatusChange('completed')}
               disabled={updating}
-              className="bg-purple-600 hover:bg-purple-700 text-white text-sm font-bold py-2.5 px-5 rounded-xl transition flex items-center gap-2 shadow-lg hover:shadow-purple-500/20"
+              className="bg-purple-600 hover:bg-purple-700 text-white text-sm font-bold py-2.5 px-5 rounded-xl transition flex items-center gap-2 shadow-lg hover:shadow-purple-500/20 cursor-pointer"
             >
               <CheckCircle className="w-4 h-4" />
               3. Complete Job & Trigger Stripe Payout
@@ -163,13 +177,13 @@ export default function ActiveJob() {
           {isCompleted && (
             <span className="bg-emerald-100 text-emerald-800 text-sm font-bold px-4 py-2 rounded-xl flex items-center gap-2">
               <CheckCircle className="w-4 h-4 text-emerald-600" />
-              Job Completed & Provider Paid Out
+              Job Completed & Payout Initiated
             </span>
           )}
         </div>
       </div>
 
-      {/* Main Grid: Live Tracking Map & Job Details */}
+      {/* Main Grid: Live Tracking Map + In-App Chat */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Left 2 Cols: Live Socket Tracking Map */}
         <div className="lg:col-span-2 space-y-6">
@@ -181,13 +195,13 @@ export default function ActiveJob() {
           />
         </div>
 
-        {/* Right Col: Provider Profile & Review */}
+        {/* Right Col: In-App Live Socket Chat & Review */}
         <div className="space-y-6">
-          {/* Provider Info Card */}
+          {/* Provider Card */}
           <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
             <h3 className="font-bold text-gray-900 mb-4 flex items-center gap-2">
               <ShieldCheck className="w-5 h-5 text-emerald-600" />
-              Your Service Provider
+              Service Provider Profile
             </h3>
 
             <div className="flex items-center gap-4 mb-4">
@@ -203,22 +217,14 @@ export default function ActiveJob() {
                 />
               </div>
             </div>
-
-            <hr className="border-gray-100 my-4" />
-
-            <div className="space-y-2 text-xs text-gray-600">
-              <p className="flex justify-between">
-                <span>Stripe Payout Account:</span>
-                <strong className="text-gray-800">{booking.transferId || 'Pending Completion'}</strong>
-              </p>
-              {booking.payoutAmount > 0 && (
-                <p className="flex justify-between text-emerald-600 font-bold">
-                  <span>Provider Payout Amount:</span>
-                  <span>${booking.payoutAmount}</span>
-                </p>
-              )}
-            </div>
           </div>
+
+          {/* In-App Live Socket Chat Widget */}
+          <InAppChat
+            bookingId={booking._id}
+            currentUser={currentUser}
+            receiver={provider}
+          />
 
           {/* Rating Submission Form when Completed */}
           {isCompleted && !hasRated && (
@@ -258,7 +264,7 @@ export default function ActiveJob() {
 
                 <button
                   type="submit"
-                  className="w-full bg-amber-500 hover:bg-amber-600 text-white font-bold py-2.5 px-4 rounded-xl transition shadow-md"
+                  className="w-full bg-amber-500 hover:bg-amber-600 text-white font-bold py-2.5 px-4 rounded-xl transition shadow-md cursor-pointer"
                 >
                   Submit Rating
                 </button>
@@ -267,6 +273,13 @@ export default function ActiveJob() {
           )}
         </div>
       </div>
+
+      {/* Dispute Modal */}
+      <DisputeModal
+        bookingId={booking._id}
+        isOpen={isDisputeOpen}
+        onClose={() => setIsDisputeOpen(false)}
+      />
     </div>
   );
 }

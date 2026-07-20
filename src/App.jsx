@@ -6,6 +6,8 @@ import Services from './pages/Services';
 import ServiceDetail from './pages/ServiceDetail';
 import BookService from './pages/BookService';
 import ActiveJob from './pages/ActiveJob';
+import AdminDashboard from './pages/AdminDashboard';
+import Profile from './pages/Profile';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
@@ -23,6 +25,8 @@ function App() {
             <Route path="/services/:id" element={<ServiceDetail />} />
             <Route path="/book/:serviceId" element={<BookService />} />
             <Route path="/job/:bookingId" element={<ActiveJob />} />
+            <Route path="/admin" element={<AdminDashboard />} />
+            <Route path="/profile" element={<Profile />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             <Route path="/dashboard" element={<Dashboard />} />
