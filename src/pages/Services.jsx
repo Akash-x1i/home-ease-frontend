@@ -1,35 +1,64 @@
-import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { Link, useSearchParams } from 'react-router-dom';
+import { serviceAPI } from '../services/api';
+import ProviderBadge from '../components/ProviderBadge';
 
 export default function Services() {
+  const [searchParams] = useSearchParams();
+  const initialSearch = searchParams.get('search') || '';
+
   const [filters, setFilters] = useState({
     category: '',
-    priceRange: 'all',
+    search: initialSearch,
   });
 
-  const mockServices = [
-    { id: 1, name: 'Plumbing Repair', category: 'Plumbing', price: 50, rating: 4.8 },
-    { id: 2, name: 'Electrical Installation', category: 'Electrical', price: 75, rating: 4.9 },
-    { id: 3, name: 'House Cleaning', category: 'Cleaning', price: 60, rating: 4.7 },
-    { id: 4, name: 'Leak Detection', category: 'Plumbing', price: 45, rating: 4.6 },
-    { id: 5, name: 'Ceiling Fan Installation', category: 'Electrical', price: 55, rating: 4.8 },
-    { id: 6, name: 'Deep Cleaning', category: 'Cleaning', price: 100, rating: 5.0 },
-  ];
+  useEffect(() => {
+    const querySearch = searchParams.get('search');
+    if (querySearch !== null && querySearch !== filters.search) {
+      setFilters((prev) => ({ ...prev, search: querySearch }));
+    }
+  }, [searchParams]);
+  const [services, setServices] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchServices() {
+      setLoading(true);
+      try {
+        const res = await serviceAPI.getAll(filters.category, filters.search);
+        if (res.data.success) {
+          setServices(res.data.services);
+        }
+      } catch (err) {
+        console.error('Failed to fetch services:', err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchServices();
+  }, [filters]);
 
   return (
-    <div className="max-w-360 mx-auto px-4 sm:px-6 lg:px-8 py-12">
-      <h1 className="text-4xl font-bold mb-8">Our Services</h1>
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <div className="flex flex-wrap justify-between items-center mb-8 gap-4">
+        <div>
+          <h1 className="text-4xl font-extrabold text-gray-900">Explore Home Services</h1>
+          <p className="text-sm text-gray-500 mt-1">Book certified professionals with real-time dynamic pricing</p>
+        </div>
+
+        <ProviderBadge isVerified={true} tier="Gold" />
+      </div>
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
         {/* Sidebar Filters */}
         <div className="md:col-span-1">
-          <div className="bg-white p-6 rounded-lg shadow-md">
-            <h3 className="text-xl font-bold mb-4">Filters</h3>
+          <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 sticky top-24">
+            <h3 className="text-lg font-bold text-gray-900 mb-4">Filter Catalog</h3>
             
             <div className="mb-6">
-              <label className="block text-sm font-semibold mb-3">Category</label>
+              <label className="block text-xs font-semibold text-gray-600 mb-2">Category</label>
               <select 
-                className="w-full border border-gray-300 rounded px-3 py-2"
+                className="w-full border border-gray-200 rounded-xl px-3.5 py-2.5 text-sm bg-gray-50 focus:ring-2 focus:ring-emerald-500"
                 value={filters.category}
                 onChange={(e) => setFilters({...filters, category: e.target.value})}
               >
@@ -37,48 +66,70 @@ export default function Services() {
                 <option value="Plumbing">Plumbing</option>
                 <option value="Electrical">Electrical</option>
                 <option value="Cleaning">Cleaning</option>
+                <option value="Appliance Repair">Appliance Repair</option>
               </select>
             </div>
 
             <div className="mb-6">
-              <label className="block text-sm font-semibold mb-3">Price Range</label>
-              <select 
-                className="w-full border border-gray-300 rounded px-3 py-2"
-                value={filters.priceRange}
-                onChange={(e) => setFilters({...filters, priceRange: e.target.value})}
-              >
-                <option value="all">All Prices</option>
-                <option value="0-50">$0 - $50</option>
-                <option value="50-100">$50 - $100</option>
-                <option value="100+">$100+</option>
-              </select>
+              <label className="block text-xs font-semibold text-gray-600 mb-2">Search Title</label>
+              <input
+                type="text"
+                placeholder="Search..."
+                value={filters.search}
+                onChange={(e) => setFilters({...filters, search: e.target.value})}
+                className="w-full border border-gray-200 rounded-xl px-3.5 py-2.5 text-sm bg-gray-50 focus:ring-2 focus:ring-emerald-500"
+              />
             </div>
           </div>
         </div>
 
         {/* Services Grid */}
         <div className="md:col-span-3">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {mockServices.map((service) => (
-              <Link 
-                key={service.id}
-                to={`/services/${service.id}`}
-                className="bg-white rounded-lg shadow-card hover:shadow-xl transition overflow-hidden cursor-pointer"
-              >
-                <div className="h-48 bg-gradient-to-br from-orange-500 to-orange-400"></div>
-                <div className="p-6">
-                  <p className="text-sm text-gray-500 mb-2">{service.category}</p>
-                  <h3 className="text-xl font-bold mb-2">{service.name}</h3>
-                  <div className="flex justify-between items-center">
-                    <span className="text-2xl font-bold text-orange-500">${service.price}</span>
-                    <span className="text-sm bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full">
-                      ★ {service.rating}
+          {loading ? (
+            <div className="text-center py-20 text-gray-400">Loading service catalog...</div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {services.map((service) => (
+                <Link 
+                  key={service._id}
+                  to={`/services/${service._id}`}
+                  className="bg-white rounded-2xl shadow-sm hover:shadow-xl transition border border-gray-100 overflow-hidden cursor-pointer flex flex-col justify-between group"
+                >
+                  <div>
+                    <div className="h-48 relative overflow-hidden bg-gray-100">
+                      <img 
+                        src={service.image} 
+                        alt={service.title} 
+                        className="w-full h-full object-cover group-hover:scale-105 transition duration-300"
+                      />
+                      <span className="absolute top-3 left-3 bg-emerald-600 text-white text-xs px-3 py-1 rounded-full font-semibold">
+                        {service.category}
+                      </span>
+                    </div>
+
+                    <div className="p-6">
+                      <h3 className="text-xl font-bold text-gray-900 mb-2 group-hover:text-emerald-600 transition">{service.title}</h3>
+                      <p className="text-xs text-gray-500 line-clamp-2 mb-4">{service.description}</p>
+
+                      <div className="mb-4">
+                        <ProviderBadge isVerified={true} tier="Standard" />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="px-6 pb-6 pt-0 flex justify-between items-center border-t border-gray-50 mt-auto">
+                    <div>
+                      <span className="text-xs text-gray-400 block">Base Price</span>
+                      <span className="text-2xl font-extrabold text-emerald-600">${service.basePrice}</span>
+                    </div>
+                    <span className="bg-emerald-50 text-emerald-700 text-xs font-bold px-3 py-1.5 rounded-lg">
+                      Book Now →
                     </span>
                   </div>
-                </div>
-              </Link>
-            ))}
-          </div>
+                </Link>
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </div>

@@ -1,79 +1,141 @@
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { bookingAPI } from '../services/api';
+import ProviderBadge from '../components/ProviderBadge';
+import { Navigation, Clock, CheckCircle, AlertCircle } from 'lucide-react';
 
 export default function Dashboard() {
-  const mockBookings = [
-    { id: 1, service: 'Plumbing Repair', date: '2024-07-20', status: 'Completed', professional: 'John Smith' },
-    { id: 2, service: 'Electrical Installation', date: '2024-08-05', status: 'Scheduled', professional: 'Jane Doe' },
-    { id: 3, service: 'House Cleaning', date: '2024-08-12', status: 'Pending', professional: 'Mike Johnson' },
-  ];
+  const [bookings, setBookings] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const stats = [
-    { label: 'Total Bookings', value: '12' },
-    { label: 'Completed', value: '10' },
-    { label: 'Saved Professionals', value: '5' },
-    { label: 'Total Spent', value: '$750' },
-  ];
+  useEffect(() => {
+    async function loadBookings() {
+      try {
+        const res = await bookingAPI.getUserBookings();
+        if (res.data.success) {
+          setBookings(res.data.bookings);
+        }
+      } catch (err) {
+        console.error('Failed to load user bookings:', err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadBookings();
+  }, []);
+
+  const totalSpent = bookings
+    .reduce((sum, b) => sum + (b.priceBreakdown?.finalPrice || 0), 0)
+    .toFixed(2);
+  const completedCount = bookings.filter((b) => b.status === 'completed').length;
+  const activeCount = bookings.filter((b) => ['pending', 'accepted', 'in-progress'].includes(b.status)).length;
 
   return (
-    <div className="max-w-360 mx-auto px-4 sm:px-6 lg:px-8 py-12">
-      <h1 className="text-4xl font-bold mb-8">Your Dashboard</h1>
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+      <div className="flex justify-between items-center mb-8">
+        <div>
+          <h1 className="text-3xl font-extrabold text-gray-900">Your Booking Dashboard</h1>
+          <p className="text-sm text-gray-500">Track active jobs, location updates, and past receipts</p>
+        </div>
 
-      {/* Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-12">
-        {stats.map((stat, i) => (
-          <div key={i} className="bg-white p-6 rounded-lg shadow-md">
-            <p className="text-gray-600 mb-2">{stat.label}</p>
-            <p className="text-3xl font-bold text-orange-500">{stat.value}</p>
-          </div>
-        ))}
+        <Link
+          to="/services"
+          className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 px-5 rounded-xl transition shadow-md"
+        >
+          + Book New Service
+        </Link>
       </div>
 
-      {/* Bookings */}
-      <div className="bg-white rounded-lg shadow-md p-8">
-        <h2 className="text-2xl font-bold mb-6">Your Bookings</h2>
-        
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead>
-              <tr className="border-b">
-                <th className="text-left py-3 px-4 font-semibold">Service</th>
-                <th className="text-left py-3 px-4 font-semibold">Professional</th>
-                <th className="text-left py-3 px-4 font-semibold">Date</th>
-                <th className="text-left py-3 px-4 font-semibold">Status</th>
-                <th className="text-left py-3 px-4 font-semibold">Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              {mockBookings.map((booking) => (
-                <tr key={booking.id} className="border-b hover:bg-gray-50">
-                  <td className="py-4 px-4">{booking.service}</td>
-                  <td className="py-4 px-4">{booking.professional}</td>
-                  <td className="py-4 px-4">{booking.date}</td>
-                  <td className="py-4 px-4">
-                    <span className={`px-3 py-1 rounded-full text-sm font-semibold ${
-                      booking.status === 'Completed' ? 'bg-green-100 text-green-800' :
-                      booking.status === 'Scheduled' ? 'bg-blue-100 text-blue-800' :
-                      'bg-yellow-100 text-yellow-800'
-                    }`}>
-                      {booking.status}
-                    </span>
-                  </td>
-                  <td className="py-4 px-4">
-                    <button className="text-orange-500 hover:text-orange-600 font-semibold">
-                      View
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+      {/* Stats Summary */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-10">
+        <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+          <p className="text-xs text-gray-400 uppercase font-semibold">Total Bookings</p>
+          <p className="text-3xl font-extrabold text-gray-900 mt-1">{bookings.length}</p>
+        </div>
+        <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+          <p className="text-xs text-gray-400 uppercase font-semibold">Active Jobs</p>
+          <p className="text-3xl font-extrabold text-emerald-600 mt-1">{activeCount}</p>
+        </div>
+        <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+          <p className="text-xs text-gray-400 uppercase font-semibold">Completed Services</p>
+          <p className="text-3xl font-extrabold text-blue-600 mt-1">{completedCount}</p>
+        </div>
+        <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+          <p className="text-xs text-gray-400 uppercase font-semibold">Total Amount</p>
+          <p className="text-3xl font-extrabold text-purple-600 mt-1">${totalSpent}</p>
         </div>
       </div>
 
-      <div className="mt-8 text-center">
-        <Link to="/services" className="btn-primary">
-          Book More Services
-        </Link>
+      {/* Bookings Table */}
+      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+        <div className="p-6 border-b border-gray-100 flex justify-between items-center">
+          <h2 className="text-xl font-bold text-gray-900">Recent Bookings & Tracking</h2>
+        </div>
+
+        {loading ? (
+          <div className="p-10 text-center text-gray-400">Loading bookings...</div>
+        ) : bookings.length === 0 ? (
+          <div className="p-12 text-center text-gray-500">
+            No bookings found. <Link to="/services" className="text-emerald-600 font-semibold underline">Book your first service!</Link>
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-left">
+              <thead>
+                <tr className="bg-gray-50 border-b border-gray-100 text-xs text-gray-400 uppercase tracking-wider">
+                  <th className="py-4 px-6 font-semibold">Service</th>
+                  <th className="py-4 px-6 font-semibold">Provider</th>
+                  <th className="py-4 px-6 font-semibold">Price</th>
+                  <th className="py-4 px-6 font-semibold">Status</th>
+                  <th className="py-4 px-6 font-semibold">Action</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-100 text-sm">
+                {bookings.map((booking) => (
+                  <tr key={booking._id} className="hover:bg-gray-50/50 transition">
+                    <td className="py-4 px-6 font-bold text-gray-900">
+                      {booking.service?.title || 'Home Service'}
+                      <span className="block text-xs font-normal text-gray-400">
+                        {new Date(booking.createdAt).toLocaleDateString()}
+                      </span>
+                    </td>
+                    <td className="py-4 px-6">
+                      <span className="font-semibold text-gray-800">{booking.provider?.name || 'Assigned Provider'}</span>
+                      <ProviderBadge
+                        isVerified={booking.provider?.providerDetails?.isVerified}
+                        tier={booking.provider?.providerDetails?.tier}
+                      />
+                    </td>
+                    <td className="py-4 px-6 font-extrabold text-emerald-600">
+                      ${booking.priceBreakdown?.finalPrice || 50}
+                    </td>
+                    <td className="py-4 px-6">
+                      <span className={`px-3 py-1 rounded-full text-xs font-bold capitalize inline-flex items-center gap-1 ${
+                        booking.status === 'completed'
+                          ? 'bg-emerald-100 text-emerald-800'
+                          : booking.status === 'in-progress'
+                          ? 'bg-amber-100 text-amber-800 animate-pulse'
+                          : 'bg-blue-100 text-blue-800'
+                      }`}>
+                        {booking.status === 'in-progress' && <Navigation className="w-3 h-3" />}
+                        {booking.status}
+                      </span>
+                    </td>
+                    <td className="py-4 px-6">
+                      <Link
+                        to={`/job/${booking._id}`}
+                        className="bg-gray-900 hover:bg-emerald-600 text-white font-bold text-xs px-3.5 py-2 rounded-lg transition inline-flex items-center gap-1.5"
+                      >
+                        <Navigation className="w-3.5 h-3.5 text-emerald-400" />
+                        Live Map & Control
+                      </Link>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
     </div>
   );

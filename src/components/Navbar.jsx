@@ -24,8 +24,31 @@ export default function Navbar() {
   const [locationOpen, setLocationOpen] = useState(false);
   const [selectedLocation, setSelectedLocation] = useState('Bangalore');
   const [accountOpen, setAccountOpen] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  
+  const storedToken = localStorage.getItem('homeease_token');
+  const storedUserRaw = localStorage.getItem('homeease_user');
+  const user = storedUserRaw ? JSON.parse(storedUserRaw) : null;
+  const isLoggedIn = Boolean(storedToken && user);
+
   const navigate = useNavigate();
+
+  const handleNavSearch = (e) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      navigate(`/services?search=${encodeURIComponent(searchQuery)}`);
+    } else {
+      navigate('/services');
+    }
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem('homeease_token');
+    localStorage.removeItem('homeease_user');
+    setAccountOpen(false);
+    navigate('/login');
+    window.location.reload();
+  };
 
   return (
     <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-gray-100">
@@ -87,14 +110,18 @@ export default function Navbar() {
               </div>
 
               {/* Search Input */}
-              <input
-                type="text"
-                placeholder="Search for a service..."
-                className="flex-1 px-3.5 py-2.5 bg-transparent text-sm text-gray-700 placeholder-gray-400 focus:outline-none"
-              />
-              <button className="px-4 bg-emerald-600 text-white hover:bg-emerald-700 transition-colors flex items-center justify-center">
-                <Search className="w-4 h-4" />
-              </button>
+              <form onSubmit={handleNavSearch} className="flex flex-1">
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Search for a service..."
+                  className="flex-1 px-3.5 py-2.5 bg-transparent text-sm text-gray-700 placeholder-gray-400 focus:outline-none"
+                />
+                <button type="submit" className="px-4 bg-emerald-600 text-white hover:bg-emerald-700 transition-colors flex items-center justify-center cursor-pointer">
+                  <Search className="w-4 h-4" />
+                </button>
+              </form>
             </div>
           </div>
 
@@ -121,8 +148,8 @@ export default function Navbar() {
                   {isLoggedIn ? (
                     <>
                       <div className="px-4 py-2 border-b border-gray-100">
-                        <p className="text-sm font-medium text-gray-900">John Doe</p>
-                        <p className="text-xs text-gray-500">john@example.com</p>
+                        <p className="text-sm font-medium text-gray-900">{user?.name || 'User'}</p>
+                        <p className="text-xs text-gray-500">{user?.email || 'user@example.com'}</p>
                       </div>
                       <Link
                         to="/dashboard"
@@ -130,30 +157,19 @@ export default function Navbar() {
                         className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 hover:text-emerald-600 transition-colors"
                       >
                         <User className="w-4 h-4" />
-                        My Profile
+                        My Dashboard
                       </Link>
                       <Link
-                        to="/cart"
+                        to="/services"
                         onClick={() => setAccountOpen(false)}
                         className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 hover:text-emerald-600 transition-colors"
                       >
                         <ShoppingCart className="w-4 h-4" />
-                        My Cart
-                      </Link>
-                      <Link
-                        to="/how-it-works"
-                        onClick={() => setAccountOpen(false)}
-                        className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 hover:text-emerald-600 transition-colors"
-                      >
-                        <Info className="w-4 h-4" />
-                        How It Works
+                        Book Services
                       </Link>
                       <hr className="border-gray-100 my-1" />
                       <button
-                        onClick={() => {
-                          setIsLoggedIn(false);
-                          setAccountOpen(false);
-                        }}
+                        onClick={handleLogout}
                         className="flex items-center gap-3 w-full text-left px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition-colors"
                       >
                         <LogOut className="w-4 h-4" />
@@ -307,10 +323,7 @@ export default function Navbar() {
                   How It Works
                 </Link>
                 <button
-                  onClick={() => {
-                    setIsLoggedIn(false);
-                    setMobileMenuOpen(false);
-                  }}
+                  onClick={handleLogout}
                   className="flex items-center gap-3 text-red-600 hover:text-red-700 font-medium py-2 transition-colors"
                 >
                   <LogOut className="w-5 h-5" />

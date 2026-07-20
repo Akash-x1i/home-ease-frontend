@@ -1,4 +1,5 @@
-import { Link } from 'react-router-dom';
+import { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import {
   Search,
   Star,
@@ -81,6 +82,18 @@ const testimonials = [
 ];
 
 export default function Home() {
+  const [searchQuery, setSearchQuery] = useState('');
+  const navigate = useNavigate();
+
+  const handleSearch = (e) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      navigate(`/services?search=${encodeURIComponent(searchQuery)}`);
+    } else {
+      navigate('/services');
+    }
+  };
+
   return (
     <div>
       {/* Hero Section */}
@@ -105,19 +118,21 @@ export default function Home() {
               </p>
 
               {/* Search Bar */}
-              <div className="max-w-lg">
+              <form onSubmit={handleSearch} className="max-w-lg">
                 <div className="relative">
                   <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                   <input
                     type="text"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
                     placeholder="What service do you need? (e.g., Plumbing)"
                     className="w-full pl-12 pr-36 py-4 rounded-xl text-gray-900 text-base bg-white focus:outline-none focus:ring-2 focus:ring-emerald-400 shadow-lg"
                   />
-                  <button className="absolute right-1.5 top-1/2 -translate-y-1/2 bg-emerald-600 text-white px-6 py-2.5 rounded-lg hover:bg-emerald-700 font-medium text-sm transition-colors">
+                  <button type="submit" className="absolute right-1.5 top-1/2 -translate-y-1/2 bg-emerald-600 text-white px-6 py-2.5 rounded-lg hover:bg-emerald-700 font-medium text-sm transition-colors cursor-pointer">
                     Search
                   </button>
                 </div>
-              </div>
+              </form>
 
               {/* Trust Badges */}
               <div className="flex flex-wrap gap-6 mt-8 text-sm text-emerald-200">
