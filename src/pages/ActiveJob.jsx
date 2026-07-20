@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { bookingAPI, paymentAPI, ratingAPI } from '../services/api';
+import { getTrackingSocket } from '../services/socket';
 import LiveTracking from '../components/LiveTracking';
 import ProviderBadge from '../components/ProviderBadge';
 import InAppChat from '../components/InAppChat';
@@ -52,6 +53,13 @@ export default function ActiveJob() {
             await paymentAPI.processPayout({ bookingId });
           } catch (payoutErr) {
             console.warn('Payout notice:', payoutErr.message);
+          }
+        } else if (newStatus === 'cancelled') {
+          try {
+            await paymentAPI.cancelHold({ bookingId });
+            alert('Booking cancelled and Stripe payment hold released!');
+          } catch (cancelErr) {
+            console.warn('Stripe hold cancel notice:', cancelErr.message);
           }
         }
       }
@@ -138,7 +146,7 @@ export default function ActiveJob() {
       <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex flex-wrap items-center justify-between gap-4">
         <div>
           <h3 className="font-bold text-gray-900">Job Control Workflow</h3>
-          <p className="text-xs text-gray-500">Provider job state transition triggers</p>
+          <p className="text-xs text-gray-500">Provider state transitions & real-time tracking triggers</p>
         </div>
 
         <div className="flex flex-wrap items-center gap-3">
@@ -164,13 +172,44 @@ export default function ActiveJob() {
           )}
 
           {isInProgress && (
+            <>
+              <button
+                onClick={() => {
+                  const socket = getTrackingSocket();
+                  const destLat = booking?.userCoordinates?.lat || 12.9716;
+                  const destLng = booking?.userCoordinates?.lng || 77.5946;
+                  socket.emit('update_location', {
+                    jobId: booking._id,
+                    lat: destLat + (Math.random() - 0.5) * 0.01,
+                    lng: destLng + (Math.random() - 0.5) * 0.01,
+                    speed: 35,
+                  });
+                  alert('📡 Live GPS location update broadcasted to customer map!');
+                }}
+                className="bg-amber-600 hover:bg-amber-700 text-white text-sm font-bold py-2.5 px-4 rounded-xl transition flex items-center gap-1.5 shadow-md cursor-pointer"
+              >
+                <Navigation className="w-4 h-4" />
+                Broadcast GPS Update
+              </button>
+
+              <button
+                onClick={() => handleStatusChange('completed')}
+                disabled={updating}
+                className="bg-purple-600 hover:bg-purple-700 text-white text-sm font-bold py-2.5 px-5 rounded-xl transition flex items-center gap-2 shadow-lg hover:shadow-purple-500/20 cursor-pointer"
+              >
+                <CheckCircle className="w-4 h-4" />
+                3. Complete Job & Trigger Stripe Payout
+              </button>
+            </>
+          )}
+
+          {(status === 'pending' || isAccepted) && (
             <button
-              onClick={() => handleStatusChange('completed')}
+              onClick={() => handleStatusChange('cancelled')}
               disabled={updating}
-              className="bg-purple-600 hover:bg-purple-700 text-white text-sm font-bold py-2.5 px-5 rounded-xl transition flex items-center gap-2 shadow-lg hover:shadow-purple-500/20 cursor-pointer"
+              className="bg-gray-100 hover:bg-red-50 text-gray-700 hover:text-red-600 text-sm font-bold py-2.5 px-4 rounded-xl border border-gray-200 hover:border-red-200 transition cursor-pointer"
             >
-              <CheckCircle className="w-4 h-4" />
-              3. Complete Job & Trigger Stripe Payout
+              Cancel Booking
             </button>
           )}
 

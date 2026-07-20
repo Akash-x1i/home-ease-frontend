@@ -9,6 +9,7 @@ export default function InAppChat({ bookingId, currentUser, receiver }) {
   const [inputText, setInputText] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const [typingUser, setTypingUser] = useState('');
+  const [unreadCount, setUnreadCount] = useState(0);
   const messagesEndRef = useRef(null);
 
   const scrollToBottom = () => {
@@ -35,7 +36,12 @@ export default function InAppChat({ bookingId, currentUser, receiver }) {
     socket.emit('join_chat', { bookingId });
 
     const onReceiveMessage = (msg) => {
-      setMessages((prev) => [...prev, msg]);
+      setMessages((prev) => {
+        const exists = prev.some((m) => m._id && msg._id && m._id === msg._id);
+        if (exists) return prev;
+        return [...prev, msg];
+      });
+      setUnreadCount((prev) => prev + 1);
       showToast(`New Message: ${msg.text.slice(0, 30)}...`, 'info');
     };
 
@@ -91,7 +97,10 @@ export default function InAppChat({ bookingId, currentUser, receiver }) {
   return (
     <div className="bg-white rounded-3xl shadow-xl border border-gray-100 flex flex-col h-[500px] overflow-hidden">
       {/* Chat Header */}
-      <div className="bg-gray-900 text-white p-4 flex items-center justify-between border-b border-gray-800">
+      <div 
+        onClick={() => setUnreadCount(0)}
+        className="bg-gray-900 text-white p-4 flex items-center justify-between border-b border-gray-800 cursor-pointer"
+      >
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 bg-emerald-600 rounded-full flex items-center justify-center font-bold text-white text-base">
             {receiver?.name?.charAt(0) || 'P'}
@@ -105,7 +114,14 @@ export default function InAppChat({ bookingId, currentUser, receiver }) {
           </div>
         </div>
 
-        <MessageSquare className="w-5 h-5 text-gray-400" />
+        <div className="flex items-center gap-2">
+          {unreadCount > 0 && (
+            <span className="bg-emerald-500 text-white text-xs font-bold px-2 py-0.5 rounded-full animate-bounce">
+              {unreadCount} new
+            </span>
+          )}
+          <MessageSquare className="w-5 h-5 text-gray-400" />
+        </div>
       </div>
 
       {/* Messages Scroll Area */}

@@ -8,6 +8,7 @@ export default function AdminDashboard() {
   const [users, setUsers] = useState([]);
   const [pendingVerifications, setPendingVerifications] = useState([]);
   const [disputes, setDisputes] = useState([]);
+  const [selectedDoc, setSelectedDoc] = useState(null);
   const [activeTab, setActiveTab] = useState('overview'); // overview, verifications, disputes, users
   const [loading, setLoading] = useState(true);
 
@@ -189,27 +190,35 @@ export default function AdminDashboard() {
                 <div key={ver._id} className="p-6 flex flex-wrap items-center justify-between gap-4">
                   <div>
                     <h4 className="font-bold text-gray-900">{ver.provider?.name || 'Provider Name'}</h4>
-                    <p className="text-xs text-gray-500">{ver.provider?.email} • Type: <strong className="capitalize">{ver.documentType.replace('_', ' ')}</strong></p>
-                    <a
-                      href={ver.documentUrl}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="text-xs text-emerald-600 font-semibold underline mt-1 inline-block"
-                    >
-                      View Submitted Document Link ↗
-                    </a>
+                    <p className="text-xs text-gray-500">{ver.provider?.email} • Type: <strong className="capitalize">{ver.documentType ? ver.documentType.replace('_', ' ') : 'Verification Doc'}</strong></p>
+                    <div className="mt-2 flex items-center gap-3">
+                      <button
+                        onClick={() => setSelectedDoc(ver)}
+                        className="text-xs bg-emerald-50 text-emerald-700 font-bold px-3 py-1 rounded-lg border border-emerald-200 hover:bg-emerald-100 transition cursor-pointer"
+                      >
+                        👁 Preview Document
+                      </button>
+                      <a
+                        href={ver.documentUrl}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="text-xs text-emerald-600 font-semibold underline inline-block"
+                      >
+                        Open External Link ↗
+                      </a>
+                    </div>
                   </div>
 
                   <div className="flex items-center gap-3">
                     <button
                       onClick={() => handleApproveVerification(ver._id, 'approved')}
-                      className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs px-4 py-2 rounded-xl transition flex items-center gap-1.5"
+                      className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs px-4 py-2 rounded-xl transition flex items-center gap-1.5 cursor-pointer"
                     >
                       <CheckCircle2 className="w-4 h-4" /> Approve & Grant Badge
                     </button>
                     <button
                       onClick={() => handleApproveVerification(ver._id, 'rejected')}
-                      className="bg-red-50 hover:bg-red-100 text-red-600 font-bold text-xs px-4 py-2 rounded-xl transition flex items-center gap-1.5 border border-red-200"
+                      className="bg-red-50 hover:bg-red-100 text-red-600 font-bold text-xs px-4 py-2 rounded-xl transition flex items-center gap-1.5 border border-red-200 cursor-pointer"
                     >
                       <XCircle className="w-4 h-4" /> Reject Document
                     </button>
@@ -307,6 +316,69 @@ export default function AdminDashboard() {
                 ))}
               </tbody>
             </table>
+          </div>
+        </div>
+      )}
+
+      {/* Document Preview Modal */}
+      {selectedDoc && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/60 backdrop-blur-xs p-4">
+          <div className="bg-white w-full max-w-2xl rounded-3xl shadow-2xl overflow-hidden border border-gray-100 p-6 space-y-4">
+            <div className="flex justify-between items-center border-b border-gray-100 pb-3">
+              <div>
+                <h3 className="font-bold text-lg text-gray-900">Verification Document Preview</h3>
+                <p className="text-xs text-gray-500">Provider: {selectedDoc.provider?.name} • Type: <strong className="capitalize">{selectedDoc.documentType}</strong></p>
+              </div>
+              <button
+                onClick={() => setSelectedDoc(null)}
+                className="text-gray-400 hover:text-gray-600 font-bold text-xl px-2 cursor-pointer"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="bg-gray-100 rounded-2xl p-4 flex items-center justify-center min-h-[300px] max-h-[450px] overflow-auto">
+              {selectedDoc.documentUrl?.endsWith('.pdf') ? (
+                <iframe src={selectedDoc.documentUrl} className="w-full h-80 rounded-xl" title="Doc Preview" />
+              ) : (
+                <img
+                  src={selectedDoc.documentUrl}
+                  alt="Document Preview"
+                  className="max-w-full max-h-80 object-contain rounded-xl shadow-md"
+                  onError={(e) => {
+                    e.target.style.display = 'none';
+                  }}
+                />
+              )}
+            </div>
+
+            <div className="flex justify-between items-center pt-2">
+              <a
+                href={selectedDoc.documentUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="text-xs font-bold text-emerald-600 underline"
+              >
+                Download / Open Full File ↗
+              </a>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => {
+                    handleApproveVerification(selectedDoc._id, 'approved');
+                    setSelectedDoc(null);
+                  }}
+                  className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs px-4 py-2 rounded-xl transition cursor-pointer"
+                >
+                  Approve Document
+                </button>
+                <button
+                  onClick={() => setSelectedDoc(null)}
+                  className="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold text-xs px-4 py-2 rounded-xl transition cursor-pointer"
+                >
+                  Close
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       )}

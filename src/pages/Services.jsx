@@ -2,10 +2,14 @@ import { useState, useEffect } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { serviceAPI } from '../services/api';
 import ProviderBadge from '../components/ProviderBadge';
+import { useLocationContext } from '../context/LocationContext';
 
 export default function Services() {
   const [searchParams] = useSearchParams();
   const initialSearch = searchParams.get('search') || '';
+
+  const { location } = useLocationContext();
+  const [categories, setCategories] = useState(['Plumbing', 'Electrical', 'Cleaning', 'Appliance Repair', 'Pest Control', 'Gardening', 'Painting', 'Carpentry', 'Packers & Movers']);
 
   const [filters, setFilters] = useState({
     category: '',
@@ -13,11 +17,26 @@ export default function Services() {
   });
 
   useEffect(() => {
+    async function loadCategories() {
+      try {
+        const res = await serviceAPI.getCategories();
+        if (res.data.success && res.data.categories?.length > 0) {
+          setCategories(res.data.categories);
+        }
+      } catch (err) {
+        console.error('Failed to load categories:', err);
+      }
+    }
+    loadCategories();
+  }, []);
+
+  useEffect(() => {
     const querySearch = searchParams.get('search');
     if (querySearch !== null && querySearch !== filters.search) {
       setFilters((prev) => ({ ...prev, search: querySearch }));
     }
   }, [searchParams]);
+
   const [services, setServices] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -36,14 +55,14 @@ export default function Services() {
       }
     }
     fetchServices();
-  }, [filters]);
+  }, [filters, location]);
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
       <div className="flex flex-wrap justify-between items-center mb-8 gap-4">
         <div>
-          <h1 className="text-4xl font-extrabold text-gray-900">Explore Home Services</h1>
-          <p className="text-sm text-gray-500 mt-1">Book certified professionals with real-time dynamic pricing</p>
+          <h1 className="text-4xl font-extrabold text-gray-900">Explore Home Services in {location.city}</h1>
+          <p className="text-sm text-gray-500 mt-1">Book certified professionals with real-time dynamic pricing for {location.city}, {location.state}</p>
         </div>
 
         <ProviderBadge isVerified={true} tier="Gold" />
@@ -58,15 +77,16 @@ export default function Services() {
             <div className="mb-6">
               <label className="block text-xs font-semibold text-gray-600 mb-2">Category</label>
               <select 
-                className="w-full border border-gray-200 rounded-xl px-3.5 py-2.5 text-sm bg-gray-50 focus:ring-2 focus:ring-emerald-500"
+                className="w-full border border-gray-200 rounded-xl px-3.5 py-2.5 text-sm bg-gray-50 focus:ring-2 focus:ring-emerald-500 capitalize"
                 value={filters.category}
                 onChange={(e) => setFilters({...filters, category: e.target.value})}
               >
                 <option value="">All Categories</option>
-                <option value="Plumbing">Plumbing</option>
-                <option value="Electrical">Electrical</option>
-                <option value="Cleaning">Cleaning</option>
-                <option value="Appliance Repair">Appliance Repair</option>
+                {categories.map((cat) => (
+                  <option key={cat} value={cat}>
+                    {cat}
+                  </option>
+                ))}
               </select>
             </div>
 

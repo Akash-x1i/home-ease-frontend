@@ -50,9 +50,12 @@ export default function LiveTracking({ jobId, initialCustomerCoords, initialProv
   const [speed, setSpeed] = useState(25);
   const [address, setAddress] = useState('En route to destination...');
   const [isConnected, setIsConnected] = useState(false);
-  const [lastUpdated, setLastUpdated] = useState(new Date().toLocaleTimeString());
-
   useEffect(() => {
+    if (jobStatus === 'completed' || jobStatus === 'cancelled') {
+      setIsConnected(false);
+      return;
+    }
+
     const socket = getTrackingSocket();
 
     socket.emit('join_job', { jobId, role: 'client' });
@@ -72,7 +75,12 @@ export default function LiveTracking({ jobId, initialCustomerCoords, initialProv
     };
 
     const onStatusUpdated = (data) => {
-      if (data.status) setStatus(data.status);
+      if (data.status) {
+        setStatus(data.status);
+        if (data.status === 'completed' || data.status === 'cancelled') {
+          setIsConnected(false);
+        }
+      }
     };
 
     socket.on('connect', onConnect);
@@ -82,6 +90,7 @@ export default function LiveTracking({ jobId, initialCustomerCoords, initialProv
 
     // Simulate provider Movement for smooth demonstration if offline socket
     const simInterval = setInterval(() => {
+      if (status === 'completed' || status === 'cancelled') return;
       setProviderCoords((prev) => {
         const dLat = (customerCoords.lat - prev.lat) * 0.05;
         const dLng = (customerCoords.lng - prev.lng) * 0.05;
@@ -103,7 +112,7 @@ export default function LiveTracking({ jobId, initialCustomerCoords, initialProv
       socket.off('status_updated', onStatusUpdated);
       clearInterval(simInterval);
     };
-  }, [jobId, customerCoords]);
+  }, [jobId, customerCoords, jobStatus, status]);
 
   const mapCenter = [providerCoords.lat, providerCoords.lng];
   const polylinePositions = [

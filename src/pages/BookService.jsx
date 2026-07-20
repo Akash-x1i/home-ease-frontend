@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { serviceAPI, authAPI, pricingAPI, bookingAPI, paymentAPI } from '../services/api';
 import DynamicPrice from '../components/DynamicPrice';
 import ProviderBadge from '../components/ProviderBadge';
+import StripePaymentForm from '../components/StripePaymentForm';
 import { Calendar, MapPin, CheckCircle, ShieldCheck, CreditCard, ArrowLeft, Clock } from 'lucide-react';
 
 export default function BookService() {
@@ -276,24 +277,11 @@ export default function BookService() {
         <div className="space-y-6">
           <DynamicPrice pricing={pricing} isLoading={isPricingLoading} />
 
-          <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 space-y-4">
-            <h4 className="font-bold text-gray-900 flex items-center gap-2">
-              <CreditCard className="w-5 h-5 text-emerald-600" />
-              Stripe Card Hold
-            </h4>
-            <p className="text-xs text-gray-500 leading-relaxed">
-              Your card will be authorized for a payment hold of{' '}
-              <strong className="text-gray-800">${pricing?.finalPrice || service.basePrice}</strong>. You will only be charged when the job is completed.
-            </p>
-
-            <button
-              onClick={handleConfirmBooking}
-              disabled={isSubmitting || !selectedProvider}
-              className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-6 rounded-xl shadow-lg hover:shadow-emerald-500/20 transition disabled:opacity-50 flex items-center justify-center gap-2 cursor-pointer"
-            >
-              {isSubmitting ? 'Authorizing Hold...' : 'Confirm Booking & Authorize Hold'}
-            </button>
-          </div>
+          <StripePaymentForm
+            amount={pricing?.finalPrice || service.basePrice}
+            onAuthorize={handleConfirmBooking}
+            isSubmitting={isSubmitting}
+          />
         </div>
       </div>
     </div>

@@ -42,6 +42,7 @@ export const serviceAPI = {
     if (search) params.append('search', search);
     return api.get(`/services?${params.toString()}`);
   },
+  getCategories: () => api.get('/services/categories'),
   getById: (id) => api.get(`/services/${id}`),
 };
 
@@ -101,6 +102,7 @@ export const verificationAPI = {
 // Stripe Payments & Connect Payouts API
 export const paymentAPI = {
   createHold: (data) => api.post('/payments/create-hold', data),
+  cancelHold: (data) => api.post('/payments/cancel-hold', data),
   processPayout: (data) => api.post('/payments/payout', data),
   connectAccount: () => api.post('/payments/connect-account'),
 };

@@ -18,6 +18,8 @@ const indianLocations = [
   { city: 'Indore', state: 'Madhya Pradesh', lat: 22.7196, lng: 75.8577 },
 ];
 
+import { useLocationContext } from '../context/LocationContext';
+
 const navLinks = [
   { label: 'Services', path: '/services' },
   { label: 'How It Works', path: '/how-it-works' },
@@ -27,9 +29,7 @@ const navLinks = [
 export default function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [locationOpen, setLocationOpen] = useState(false);
-  const [selectedLocation, setSelectedLocation] = useState(
-    JSON.parse(localStorage.getItem('homeease_location') || 'null') || indianLocations[0]
-  );
+  const { location: selectedLocation, changeLocation, locations: indianLocations } = useLocationContext();
   const [accountOpen, setAccountOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -41,10 +41,8 @@ export default function Navbar() {
   const navigate = useNavigate();
 
   const handleSelectLocation = (loc) => {
-    setSelectedLocation(loc);
-    localStorage.setItem('homeease_location', JSON.stringify(loc));
+    changeLocation(loc);
     setLocationOpen(false);
-    window.dispatchEvent(new Event('homeease_location_changed'));
   };
 
   const handleNavSearch = (e) => {
