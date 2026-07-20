@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { getChatSocket } from '../services/socket';
 import { chatAPI } from '../services/api';
 import { Send, MessageSquare, User, Clock, CheckCheck, Loader2 } from 'lucide-react';
+import { showToast } from './Toast';
 
 export default function InAppChat({ bookingId, currentUser, receiver }) {
   const [messages, setMessages] = useState([]);
@@ -35,6 +36,7 @@ export default function InAppChat({ bookingId, currentUser, receiver }) {
 
     const onReceiveMessage = (msg) => {
       setMessages((prev) => [...prev, msg]);
+      showToast(`New Message: ${msg.text.slice(0, 30)}...`, 'info');
     };
 
     const onUserTyping = (data) => {

@@ -1,6 +1,7 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
+import ToastContainer from './components/Toast';
 import Home from './pages/Home';
 import Services from './pages/Services';
 import ServiceDetail from './pages/ServiceDetail';
@@ -34,6 +35,7 @@ function App() {
           </Routes>
         </main>
         <Footer />
+        <ToastContainer />
       </div>
     </Router>
   );
